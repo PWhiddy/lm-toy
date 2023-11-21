@@ -11,11 +11,11 @@ class Model(nn.Module):
     self.context_size = context_size
     self.token_embed = nn.Embedding(vocab_size, hidden_dim)
     self.position_embed = nn.Embedding(context_size, hidden_dim)
-    self.layers = [nn.Linear(context_size*hidden_dim, context_size*hidden_dim) for x in range(layers)]
+    self.layers = nn.ModuleList([nn.Linear(context_size*hidden_dim, context_size*hidden_dim) for x in range(layers)])
     self.out_proj = nn.Linear(context_size*hidden_dim, vocab_size)
 
   def forward(self, token_batch):
-    pos = self.position_embed(torch.arange(self.context_size))
+    pos = self.position_embed(torch.arange(self.context_size, device=token_batch.device))
     x = self.token_embed(token_batch)# + pos
     x = rearrange(x, "b t c -> b (t c)")
     #x = x.mean(axis=1)
